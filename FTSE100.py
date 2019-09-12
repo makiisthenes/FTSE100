@@ -50,7 +50,7 @@ law = [x for x in a if x != []]
 head = law[0]
 del law[0]
 df2 = pd.DataFrame(law,columns=head)
-df2.to_csv(output_file_2, index=False, encoding='utf-8-sig') #avoid ()showing funny characters
+df2.to_csv(output_file_2, index=False, encoding='utf-8-sig') #avoid ()shown as funny characters
 
 
 
