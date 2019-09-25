@@ -179,12 +179,12 @@ for fir in fir_list:
 #--------------------------------------------------------------------------------------------------------------------------------------------------
 # find a word in a long name
 str = 'Charity Commission for Northern Ireland'
-match = re.search(r'Northern Ireland',str)
+match = re.search(r'Northern Ireland', str)
 if match:
-    print('found',match.group())
-    location  = match.group()
+    print('found', match.group())
+    location = match.group()
     print(location)
-    str = str.replace(location,"").strip()
+    str = str.replace(location, "").strip()
     print(str)
 else:
     print(r"didn't find")
