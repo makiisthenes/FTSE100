@@ -186,8 +186,7 @@ if match:
     print(location)
     str = str.replace(location, "").strip()
     print(str)
-else:
-    print(r"didn't find")
+
 
 
 
