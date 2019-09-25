@@ -16,7 +16,7 @@
 #need to do:
 #lower case all the names; add more situations to the name possiblities
 
-from functools import reduce #-> for more efficient iterate
+from functools import reduce #-> for more efficient iterate calculation
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # Import NameLibrary for name mactching and appending new names
 import sys
@@ -26,6 +26,7 @@ sys.path.append(os.path.abspath(scriptpath))
 import json
 import openpyxl
 from openpyxl import Workbook
+import re 
 
 with open(r".\NameLibrary.py", "r+") as f:
     NameDict = json.load(f)
@@ -65,6 +66,10 @@ def ratio(a,b):
     ratio = (1-round(lev(a,b)/length(a,b),3))*100
     return ratio
 
+def sort(a):
+    a = "".join(sorted(a.split()))
+    return a
+
 
 # Name Matching two lists with exact length
 foo = "Lexis Nexis"
@@ -93,13 +98,13 @@ boo_join = "".join(boo_list)
 #print(NameDict)
 
 # save manually added key/value to a new dictionary and update this dict to the original NewDict
-my_dict = dict()
-user_input = input("please enter the key and value separated by comma: ")
-key, value = user_input.split(",")
-my_dict[key] = value
-dict.update(my_dict)
-print(my_dict)
-NameDict.update(my_dict)
+#my_dict = dict()
+#user_input = input("please enter the key and value separated by comma: ")
+#key, value = user_input.split(",")
+#my_dict[key] = value
+#dict.update(my_dict)
+#print(my_dict)
+#NameDict.update(my_dict)
 
 with open(r'.\NameLibrary.py','w') as outfile:
     json.dump(NameDict,outfile)
@@ -114,9 +119,9 @@ values = list(NameDict.values())
 s_name = ""
 for key, value in zip(keys, values):
     if ratio(f_name, key) >=85:
-        print(ratio(f_name,key))
+        #print(ratio(f_name,key))
         s_name = value
-        print(s_name)
+        #print(s_name)
     else:
         pass
 if s_name == "":
@@ -138,7 +143,7 @@ for cell in woo['A']:
     sur_list.append(cell.value)
     if cell.value is None:
         break
-print(sur_list)
+#print(sur_list)
 
 for cell in coo['A']:
    # print(cell.value)
@@ -155,20 +160,35 @@ for fir in fir_list:
     fir = "".join(sorted(fir.split()))
     for key, value in zip(keys, values):
         if ratio(fir, key) >= 85:
-            print(ratio(fir,key))
+            #print(ratio(fir,key))
             sur = value
-            print(fir,sur)
+            #print(fir,sur)
             if sur in sur_list:
                 sindex = sur_list.index(sur)
-                print(sindex)
+                #print(sindex)
                 fnum = coo.cell(findex+1,2).value
-                print(fir,findex,fnum)
+                #print(fir,findex,fnum)
                 s = woo.cell(sindex+1, 2).value
                 woo.cell(sindex+1, 2).value = fnum
-                print(fir, sur, s)
+                #print(fir, sur, s)
                 wb.save(r"C:\Users\chenyx\Documents\Evelyn\Practise\Python learning\FTSE100\test.xlsx")
             else:
-                print(sur,"not in")  #"AS" not coming up because of surname lowercase
+                #print(sur,"not in")  #"AS" not coming up because of surname lowercase
+                pass
+                # 
+#--------------------------------------------------------------------------------------------------------------------------------------------------
+# find a word in a long name
+str = 'Charity Commission for Northern Ireland'
+match = re.search(r'Northern Ireland',str)
+if match:
+    print('found',match.group())
+    location  = match.group()
+    print(location)
+    str = str.replace(location,"").strip()
+    print(str)
+else:
+    print(r"didn't find")
+
 
 
 
