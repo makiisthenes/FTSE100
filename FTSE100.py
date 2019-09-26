@@ -11,7 +11,7 @@ import re
 # for FTSE 100 index
 pages = [1, 2, 3, 4, 5, 6]
 #pages = [1,2]
-output_file = r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\ftse_100_list_2.csv'
+output_file = r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\ftse_100_list.xlsx'
 lst=[]
 for page in pages:
     url = r'https://www.londonstockexchange.com/exchange/prices-and-markets/stocks/indices/summary/summary-indices-constituents.html?index=UKX&page={}'.format(
@@ -44,11 +44,41 @@ for page in pages:
     lst.extend(l)
 FTSE = [e for e in lst if e!=[]]
 df=pd.DataFrame(FTSE,columns=['Code','Name','Cur','Price','+/-','%+/-','Full Name'])
-df.to_csv(output_file, index=False, encoding = 'utf-8-sig')
+#df.to_csv(output_file, index=False, encoding = 'utf-8-sig')
+df.to_excel(output_file, index=False)
 #print(df)
 
+
+# for top 200 law firms
+output_file_2 = r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\law_firm_list.xlsx'
+lst_2 = []
+url = r'https://www.thelawyer.com/top-200-uk-law-firms/'
+response = requests.get(url)
+soup2 = BeautifulSoup(response.text, "html.parser")
+table2 = soup2.find('table', {'class': 't1'})
+table_rows2 = table2.findAll('tr')
+a = []
+for tr2 in table_rows2:
+    td2 = tr2.findAll('td')
+    row2 = [tr2.text.strip() for tr2 in td2]
+    while("" in row2):
+        row2.remove("")
+    a.append(row2)
+law = [x for x in a if x != []]
+head = law[0]
+del law[0]
+#df2 = pd.DataFrame(law,columns=head)
+#df2.to_csv(output_file_2, index=False, encoding='utf-8-sig') #avoid ()shown as funny characters
+df.to_excel(output_file_2, index=False)
+
+
+#----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
 # for full stock list on London Stock Exchange
-pages = range(1,1199)
+#pages = range(1,1199)
+pagegs=[1,2]
 output_file_full = r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\ftse_list.xlsx'
 lst_full = []
 
@@ -73,33 +103,6 @@ for page in pages:
 FTSE_full = [foo for foo in lst_full if foo != []]
 df = pd.DataFrame(FTSE_full, columns=['Code', 'Name', 'Cur', 'Price', '+/-', '%+/-'])
 #df.to_csv(output_file_full, index=False, encoding = 'utf-8-sig', float_format = None, sep = ',', quoting = csv.QUOTE_ALL)
-df.to_excel(output_file_full, index = False)
-
-
-
-# for top 200 law firms
-output_file_2 = r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\law_firm_list.csv'
-lst_2 = []
-url = r'https://www.thelawyer.com/top-200-uk-law-firms/'
-response = requests.get(url)
-soup2 = BeautifulSoup(response.text, "html.parser")
-table2 = soup2.find('table', {'class': 't1'})
-table_rows2 = table2.findAll('tr')
-a = []
-for tr2 in table_rows2:
-    td2 = tr2.findAll('td')
-    row2 = [tr2.text.strip() for tr2 in td2]
-    while("" in row2):
-        row2.remove("")
-    a.append(row2)
-law = [x for x in a if x != []]
-head = law[0]
-del law[0]
-df2 = pd.DataFrame(law,columns=head)
-df2.to_csv(output_file_2, index=False, encoding='utf-8-sig') #avoid ()shown as funny characters
-
-
-
-
+#df.to_excel(output_file_full, index = False)
 
 

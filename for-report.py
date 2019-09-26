@@ -76,124 +76,7 @@ def ratio(a,b):
 def sort(a):
     a = "".join(sorted(a.split()))
     return a
-
-
-# Name Matching two lists with exact length
-foo = "Lexis Nexis"
-boo = "Nexis Lexis"
-
-foo_list = sorted(foo.split()) # -> ["Lexis", "Nexis"]
-boo_list = sorted(boo.split()) # -> ["Lexis", "Nexis"]
-sum = 0
-for i,j in zip(range(len(foo_list)),range(len(boo_list))):
-    ld=(lev(foo_list[i],boo_list[j]))
-    sum=sum+ld
-#print(sum)  
-
-# lambda is anonymous function -> def sum_array(accumulator, entry):   return accumulator + entry #->lambda x, y
-#sum and sum2 basically the same thing
-sum2 = reduce(lambda x,y: x +y , [lev(foo_list[i], boo_list[i]) for i in range(len(foo_list))])
-#print(sum2)
-# Name Matching essensially two lists with no length restriction
-foo_join = "".join(foo_list)
-boo_join = "".join(boo_list)
-#print(foo_join,boo_join)
-#print(lev(foo_join, boo_join))
-
-#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# Compare names against a name dictionary, append the dictionary with new names when there's any manual input
-#print(NameDict)
-
-# save manually added key/value to a new dictionary and update this dict to the original NewDict
-#my_dict = dict()
-#user_input = input("please enter the key and value separated by comma: ")
-#key, value = user_input.split(",")
-#my_dict[key] = value
-#dict.update(my_dict)
-#print(my_dict)
-#NameDict.update(my_dict)
-
-with open(r'.\NameLibrary.py','w') as outfile:
-    json.dump(NameDict,outfile)
-
-#print(NameDict)
-
-#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#compare the name against the key from the dic, when ratio is greater than 95, give me the value;otherwise pop up user input with that name as key for inputting value
-#f_name = "You"
-#keys = list(NameDict.keys())
-#values = list(NameDict.values())
-#s_name = ""
-#for key, value in zip(keys, values):
- #   if ratio(f_name, key) >=85:
-        #print(ratio(f_name,key))
-  #      s_name = value
-        #print(s_name)
-   # else:
-    #    pass
-#if s_name == "":
- #       user_input = input("please enter the surname: ")
-  #      key, value = f_name, user_input
-   #     NameDict[f_name] = user_input
-    #    dict.update(NameDict)
-     #   with open(r'.\NameLibrary.py', 'w') as outfile:
-      #      json.dump(NameDict, outfile)
-
-# f_name from a list in excel, look up to populate the surname sheet
-wb = openpyxl.load_workbook(r'.\test.xlsx')
-woo = wb.get_sheet_by_name("Sur")
-coo = wb.get_sheet_by_name("Fir")
-sur_list = []
-fir_list = []
-for cell in woo['A']:
-    #print(cell.value)
-    sur_list.append(cell.value)
-    if cell.value is None:
-        break
-#print(sur_list)
-
-for cell in coo['A']:
-   # print(cell.value)
-    fir_list.append(cell.value)
-    if cell.value is None:
-        break
-
-
-keys = list(NameDict.keys())
-values = list(NameDict.values())
-
-for fir in fir_list:
-    findex = fir_list.index(fir)
-    fir = "".join(sorted(fir.split()))
-    for key, value in zip(keys, values):
-        if ratio(fir, key) >= 85:
-            #print(ratio(fir,key))
-            sur = value
-            #print(fir,sur)
-            if sur in sur_list:
-                sindex = sur_list.index(sur)
-                #print(sindex)
-                fnum = coo.cell(findex+1,2).value
-                #print(fir,findex,fnum)
-                s = woo.cell(sindex+1, 2).value
-                woo.cell(sindex+1, 2).value = fnum
-                #print(fir, sur, s)
-                wb.save(r"C:\Users\chenyx\Documents\Evelyn\Practise\Python learning\FTSE100\test.xlsx")
-            else:
-                #print(sur,"not in")  #"AS" not coming up because of surname lowercase
-                pass
-                # 
 #--------------------------------------------------------------------------------------------------------------------------------------------------
-# find a word in a long name
-str = 'Charity Commission for Northern Ireland'
-match = re.search(r'Northern Ireland', str)
-if match:
-   # print('found', match.group())
-    location = match.group()
-#    print(location)
-    str = str.replace(location, "").strip()
- #   print(str)
-
 # read excel file and put column to python list
 file = r"\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\ftse_100_list.xlsx"
 df = pd.read_excel(file, sheet_name=0)
@@ -213,7 +96,6 @@ for n in mylist:
             n = n.replace(match.group(),"")
             namelist.append(n)
         
-
 
 for nn in namelist:
     match = re.search(r'\([^()]*\)', nn)
@@ -255,17 +137,17 @@ list2 = list(filter(lambda l: l != '"', [l.strip() for l in list2]))
 #print(list2)
 
 
-wb2 = openpyxl.load_workbook(file)
-s = wb2.get_sheet_by_name('Sheet1')
+wb = openpyxl.load_workbook(file)
+s = wb.get_sheet_by_name('Sheet1')
 row = 2
 for nl in list2:
     s.cell(row, 8).value = nl
-    #wb2.save(file)
+    #wb.save(file)
     row += 1
 head = s.cell(1, 8)
 head.value = "Clean Name"
 head.font = Font(bold=True)
-#wb2.save(file)
+#wb.save(file)
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #compare with report file
@@ -275,39 +157,82 @@ acct = df['accname'].tolist()
 #print(acct)
 matching = list(NameDict.keys())
 ftse = list(NameDict.values())
-wrongname = []
-ticker = []
+wrongname = list(Bin.keys())
+ticker = list(Bin.values())
+
+wb2 = openpyxl.load_workbook(
+    r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Old.xlsx')
+LL = wb2.get_sheet_by_name("Library")
+symbol = []
+
 for n in list2:
     nj = "".join(n.split())
+    
     if n == nj:
         n = r'\b' + n + r'\s'
         for m in acct:
             match = re.search(n,m,flags=re.I)
             if match:  
                 value = match.group()
-                if value in ftse:
-                    print(value)
+                if m in matching:
+                    mindex = acct.index(m)+1
+                    LL.cell(mindex+1, 11).value = nj
+                    wb2.save(r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Old.xlsx')
+                    
                 else:
-                    print(n.index,match.group(), m)
-                    user = input("type the number you want to add or type N to exit: ")
-                    if user != "N":
-                        ftse.append(nj)
-                        matching.append(m)
+                    if m in wrongname:
+                        pass
                     else:
-                        wrongname.append(m)
-                        ticker.append(nj)
+                        print(acct.index(m), match.group(), m)
+                        user = input("do you want to add it into the dictionary? y/n: ")
+                        if user != "n":
+                            ftse.append(nj)
+                            matching.append(m)
+                            LL.cell(mindex+1, 11).value = nj
+                            wb2.save(r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Old.xlsx')
+                        else:
+                            wrongname.append(m)
+                            ticker.append(nj)
+    
     else:
-        for m in acct:
-            match = re.search(n,m, flags = re.I)
-            if match:
-                #print(match.group(),m)
-                ftse.append(n)
-                matching.append(m)
+        symbol.append(n)
+        for s in symbol:
+            for m in acct:
+                match = re.search(n,m, flags = re.I)
+                if match:
+                    mindex = acct.index(m)+1
+                    LL.cell(mindex+1, 11).value = s
+                    wb2.save(r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Old.xlsx')
+               #else:
+                #    for s and
+                 #   if m in matching:
+                  #      print(m)
+                    #        user = input("is this correct? y/n: ")
+                     #       if user == 'y':
+                      #          mindex = acct.index(m)+1
+                       #         LL.cell(mindex+1, 11).value = n
+                        #        wb2.save(r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Old.xlsx')
+                         #   else:
+                          #      matching.remove(m)
+                           #     wrongname.append(m)
+
+# above part misses royal shell and lloyds
+
+for acctname in acct:
+    for a, b in NameDict.items():
+        if acctname == a:
+            tickersymbol = b
+            acctindex = acct.index(acctname)+1
+            if LL.cell(acctindex+1,11).value :
+                pass
+            else:
+                LL.cell(acctindex+1, 11).value = b
+                wb2.save(r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Old.xlsx')
 
 
 my_dict = dict()
 for f, m in zip(ftse, matching):
-    my_dict[m]=f
+    my_dict[m] = f
     dict.update(my_dict)
 
 NameDict.update(my_dict)
@@ -317,13 +242,13 @@ with open(r'.\NameLibrary.py', 'w') as outfile:
 
 bin_dict = dict()
 for t, w in zip(ticker, wrongname):
-    bin_dict[w]=t
+    bin_dict[w] = t
     dict.update(bin_dict)
 
 Bin.update(bin_dict)
 
-with open(r".\bin.py","w") as outfile2:
-    json.dump(Bin,outfile)
+with open(r".\bin.py", "w") as outfile2:
+    json.dump(Bin, outfile2)
 
 
 
