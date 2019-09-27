@@ -45,7 +45,7 @@ for page in pages:
 FTSE = [e for e in lst if e!=[]]
 df=pd.DataFrame(FTSE,columns=['Code','Name','Cur','Price','+/-','%+/-','Full Name'])
 #df.to_csv(output_file, index=False, encoding = 'utf-8-sig')
-df.to_excel(output_file, index=False)
+#df.to_excel(output_file, index=False)
 #print(df)
 
 
@@ -67,9 +67,10 @@ for tr2 in table_rows2:
 law = [x for x in a if x != []]
 head = law[0]
 del law[0]
-#df2 = pd.DataFrame(law,columns=head)
+df2 = pd.DataFrame(law,columns=head)
+#print(df2)
 #df2.to_csv(output_file_2, index=False, encoding='utf-8-sig') #avoid ()shown as funny characters
-df.to_excel(output_file_2, index=False)
+df2.to_excel(output_file_2, index=False)
 
 
 #----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
