@@ -117,60 +117,54 @@ head.font = Font(bold=True)
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #compare with report file
 report = r"\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep - Copy.xlsx"
-#df = pd.read_excel(report, sheet_name='Library')
-df = pd.read_excel(report, sheet_name='PSL')
-#df = pd.read_excel(report, sheet_name='Draft')
-acct = df['accname'].tolist()
-#print(acct)
-matching = list(NameDict.keys())
-law = list(NameDict.values())
-wrongname = list(Bin.keys())
-firm = list(Bin.values())
+sheetname = ['Library','PSL','Draft']
+for sh in sheetname:
 
-wb2 = openpyxl.load_workbook(
-    r"\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep - Copy.xlsx")
-#LL = wb2.get_sheet_by_name("Library")
-PSL = wb2.get_sheet_by_name("PSL")
-#Draft = wb2.get_sheet_by_name("Draft")
+    df = pd.read_excel(report, sheet_name= sh)
+
+    acct = df['accname'].tolist()
+
+    matching = list(NameDict.keys())
+    law = list(NameDict.values())
+    wrongname = list(Bin.keys())
+    firm = list(Bin.values())
+
+    wb2 = openpyxl.load_workbook(
+        r"\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep - Copy.xlsx")
+  
+    Tab = wb2.get_sheet_by_name(sh)
 
 
 
-for n in namelist:
-    for m in acct:
-        match = re.search(n,m,flags=re.I)
-        
-        if match:
-            #print ("yes")
-            #matching.append(m)
-            #law.append(n)
-            if m in matching:
-                mindex = acct.index(m)+1
-                #LL.cell(mindex+1, 8).value = n
-                PSL.cell(mindex+1, 8).value = n
-                #Draft.cell(mindex+1, 8).value = n
-                wb2.save(r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep.xlsx')
+    for n in namelist:
+        for m in acct:
+            match = re.search(n,m,flags=re.I)
+            
+            if match:
+                if m in matching:
+                    mindex = acct.index(m)+1
+                    Tab.cell(mindex+1, 8).value = n
+                    wb2.save(r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep - Copy.xlsx')
 
-            else:
-                if m in wrongname:
-                    pass
                 else:
-                    print(acct.index(m), match.group(), m)
-                    user = input(
-                           "do you want to add it into the dictionary? y/n: ")
-                    if user == "y":
-                        law.append(n)
-                        matching.append(m)
-                        mindex = acct.index(m)+1
-                        #LL.cell(mindex+1, 8).value = n
-                        PSL.cell(mindex+1, 8).value = n
-                        #Draft.cell(mindex+1, 8).value = n
-                        wb2.save(r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep.xlsx')
+                    if m in wrongname:
+                        pass
                     else:
-                        wrongname.append(m)
-                        firm.append(n)
+                        print(acct.index(m), match.group(), m)
+                        user = input(
+                            "do you want to add it into the dictionary? y/n: ")
+                        if user == "y":
+                            law.append(n)
+                            matching.append(m)
+                            mindex = acct.index(m)+1
+                            Tab.cell(mindex+1, 8).value = n
+                            wb2.save(r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep - Copy.xlsx')
+                        else:
+                            wrongname.append(m)
+                            firm.append(n)
 
 
-       
+        
  
 
 

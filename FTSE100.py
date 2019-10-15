@@ -55,7 +55,8 @@ lst_2 = []
 url = r'https://www.thelawyer.com/top-200-uk-law-firms/'
 response = requests.get(url)
 soup2 = BeautifulSoup(response.text, "html.parser")
-table2 = soup2.find('table', {'class': 't1'})
+table2 = soup2.find('tbody')
+#print(table2)
 table_rows2 = table2.findAll('tr')
 a = []
 for tr2 in table_rows2:

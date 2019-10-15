@@ -151,86 +151,74 @@ head.font = Font(bold=True)
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #compare with report file
-report = r"\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep.xlsx"
-#df = pd.read_excel(report, sheet_name='Library')
-#df = pd.read_excel(report, sheet_name='PSL')
-df = pd.read_excel(report, sheet_name='Draft')
-acct = df['accname'].tolist()
-#print(acct)
-matching = list(NameDict.keys())
-ftse = list(NameDict.values())
-wrongname = list(Bin.keys())
-ticker = list(Bin.values())
+report = r"\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep - Copy.xlsx"
+sheetname = ['Library', 'PSL', 'Draft']
+for sh in sheetname:
+    df = pd.read_excel(report, sheet_name=sh)
+    acct = df['accname'].tolist()
+    #print(acct)
+    matching = list(NameDict.keys())
+    ftse = list(NameDict.values())
+    wrongname = list(Bin.keys())
+    ticker = list(Bin.values())
 
-wb2 = openpyxl.load_workbook(
-    r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep.xlsx')
-#LL = wb2.get_sheet_by_name("Library")
-#PSL = wb2.get_sheet_by_name("PSL")
-Draft = wb2.get_sheet_by_name("Draft")
-symbol = []
+    wb2 = openpyxl.load_workbook(
+        r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep - Copy.xlsx')
+    Tab = wb2.get_sheet_by_name(sh)
+    symbol = []
 
-for n in list2:
-    nj = "".join(n.split())
-    
-    if n == nj:
-        n = r'\b' + n + r'\s'
-        for m in acct:
-            match = re.search(n,m,flags=re.I)
-            if match:  
-                #value = match.group()
-                if m in matching:
-                    mindex = acct.index(m)+1
-                    #LL.cell(mindex+1, 11).value = nj
-                    #PSL.cell(mindex+1, 11).value = nj
-                    Draft.cell(mindex+1, 11).value = nj
-                    wb2.save(r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep.xlsx')
-                    
-                else:
-                    if m in wrongname:
-                        pass
-                    else:
-                        print(acct.index(m), match.group(), m)
-                        user = input("do you want to add it into the dictionary? y/n: ")
-                        if user != "n":
-                            ftse.append(nj)
-                            matching.append(m)
-                            #LL.cell(mindex+1, 11).value = nj
-                            #PSL.cell(mindex+1, 11).value = nj
-                            Draft.cell(mindex+1, 11).value = nj
-                            wb2.save(r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep.xlsx')
-                        else:
-                            wrongname.append(m)
-                            ticker.append(nj)
-    
-    else:
-        symbol.append(n)
-        for s in symbol:
+    for n in list2:
+        nj = "".join(n.split())
+        
+        if n == nj:
+            n = r'\b' + n + r'\s'
             for m in acct:
-                match = re.search(n,m, flags = re.I)
-                if match:
-                    mindex = acct.index(m)+1
-                    #LL.cell(mindex+1, 11).value = s
-                    #PSL.cell(mindex+1, 11).value = s
-                    Draft.cell(mindex+1, 11).value = s                    
-                    wb2.save(r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep.xlsx')
-    
+                match = re.search(n,m,flags=re.I)
+                if match:  
+                    
+                    if m in matching:
+                        mindex = acct.index(m)+1
+                        Tab.cell(mindex+1, 11).value = nj
+                        wb2.save(r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep - Copy.xlsx')
+                        
+                    else:
+                        if m in wrongname:
+                            pass
+                        else:
+                            print(acct.index(m), match.group(), m)
+                            user = input("do you want to add it into the dictionary? y/n: ")
+                            if user != "n":
+                                ftse.append(nj)
+                                matching.append(m)
+                                Tab.cell(mindex+1, 11).value = nj
+                                wb2.save(r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep - Copy.xlsx')
+                            else:
+                                wrongname.append(m)
+                                ticker.append(nj)
+        
+        else:
+            symbol.append(n)
+            for s in symbol:
+                for m in acct:
+                    match = re.search(n,m, flags = re.I)
+                    if match:
+                        mindex = acct.index(m)+1
+                        Tab.cell(mindex+1, 11).value = s                   
+                        wb2.save(r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep - Copy.xlsx')
+        
 
-# above part misses royal shell and lloyds
+    # above part misses royal shell and lloyds
 
-for acctname in acct:
-    for a, b in NameDict.items():
-        if acctname == a:
-            tickersymbol = b
-            acctindex = acct.index(acctname)+1
-            #if LL.cell(acctindex+1,11).value :
-            #if PSL.cell(acctindex+1, 11).value:
-            if Draft.cell(acctindex+1, 11).value:
-                pass
-            else:
-                #LL.cell(acctindex+1, 11).value = b
-                #PSL.cell(acctindex+1, 11).value = b
-                Draft.cell(acctindex+1, 11).value = b
-                wb2.save(r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep.xlsx')
+    for acctname in acct:
+        for a, b in NameDict.items():
+            if acctname == a:
+                tickersymbol = b
+                acctindex = acct.index(acctname)+1
+                if Tab.cell(acctindex+1, 11).value:
+                    pass
+                else:
+                    Tab.cell(acctindex+1, 11).value = b
+                    wb2.save(r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep - Copy.xlsx')
 
 
 my_dict = dict()
