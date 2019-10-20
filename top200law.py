@@ -1,69 +1,33 @@
-# Levenshtein Distance
-# string a,b; characters are 1-indexed. i.e, a1, a2, a3...; b1, b2, b3
-# if min(i,j) = 0, then max(i,j); otherwise min(A,B,C)
-# A compares string a with characters up till an-1 with string b
-# B compares string a with string b with characters up till bn-1
-# C compares string a with characters up till an-1 with string b with characters up till bn-1
-# As method C deleted the final string which could mean potential one edit, if the an=bn, then no need edit, otherwise would have one edit
-# find i and j by finding the length of the strings, as the length starts from 1
-# len(a) = i, len(b)=j
-# assume string b is the target string, to match a with b, if A is the min -> deletion as a needs to delet one string;
-#if B is the min -> insertation, as a needs to add one string;
-# if C is the min -> substitute, as a needs to change certain characters to match b
-#-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-#need to do:
-#lower case all the names; add more situations to the name possiblities
-
-from functools import reduce #-> for more efficient iterate calculation
-#-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# Import NameLibrary for name mactching and appending new names
-import sys
+#-----import modules--------------------------------------
+import pandas as pd
+import requests
+import urllib.request
+import urllib
 import os
-scriptpath1 = r".\NameLibrary.py"
-sys.path.append(os.path.abspath(scriptpath1))
-scriptpath2 = r".\bin.py"
-sys.path.append(os.path.abspath(scriptpath2))
+import time
+from bs4 import BeautifulSoup
+import csv
+import re
+import sys
 import json
 import openpyxl
 from openpyxl import Workbook
 from openpyxl.styles import Font, Color, Border
-import re
-import pandas as pd
 
-with open(r".\NameLibrary.py", "r+") as f:
-    NameDict = json.load(f)
-
-with open(r".\bin.py","r+") as f2:
-    Bin = json.load(f2)
-
-#define levenshtein distance function to be the foundation
+#-----functions--------------------------------------------
 def lev(a, b):
     if a == "":
-        return len(b) # if a == "", then len(a) -> i = 0, while len(b) -> j; min(0,j) = 0, therefore lev(a,b) = max (0,j) = j
-
+        return len(b)
     if b == "":
-        return len(a) # if b == "", then len(b) -> j = 0, while len(a) -> i; min(i,0) = 0, therefore lev(a,b) = max(i,0) = i
-
+        return len(a)
     if a[-1] == b[-1]:
-        cost = 0  # a[-1] = ai, b[-1]=bj, if ai = bj, then deleting both final strings would not result in potential edit
-
+        cost = 0
     else:
-        cost =1  # a[-1] = ai, b[-1]=bj, if ai <> bj, then deleting both final strings would result in potential one edit
-                 # can assign any number as weight -> substitution can be more costy than deletion/insertation
-
-    other = min([lev(a[:-1], b) + 1,  # A: a[:-1] -> string a with characters up till an-1; deleting a character itself has one edit
-
-                 lev(a, b[:-1]) + 1, # B: b[:-1] -> string b with characters up till an-1; deleting a character itself has one edit
-
-                 lev(a[:-1], b[:-1]) + cost])  # C  # if min(i,j) = 0, then lev(a,b) = max (a,b); otherwise lev(a,b)=min(A, B, C)
-
-
-    #ratio = other/length
-
+        cost =1
+    other = min([lev(a[:-1], b) + 1,
+                 lev(a, b[:-1]) + 1,
+                 lev(a[:-1], b[:-1]) + cost])
     return other
-    #return ratio
 
 def length(a,b):
     length = len(a)+len(b)
@@ -79,11 +43,90 @@ def sort(a):
 def trim(a):
     a = list(filter(lambda l: l!= '"',[l.strip() for l in a]))
     return a
-#-------------------------------------------------------------------------
-# read excel file and put column to python list
-#file = r"\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\ftse_100_list.xlsx"
 
-file = r"./FTSE100/ftse100_list.xlsx"
+def join(a):
+    a = "".join(a.split())
+    return a
+
+def lower(a):
+    a = "".join(trim(a)).lower()
+    return a
+#------get FTSE100 and Top 200 Law lists------------------
+
+# for FTSE 100 index
+pages = [1, 2, 3, 4, 5, 6]
+output_file = r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\ftse_100_list.xlsx'
+lst=[]
+for page in pages:
+    url = r'https://www.londonstockexchange.com/exchange/prices-and-markets/stocks/indices/summary/summary-indices-constituents.html?index=UKX&page={}'.format(
+        page)
+    response = requests.get(url)
+    soup = BeautifulSoup(response.text,"html.parser")
+    table = soup.find('table',{'class':'table_dati'})
+    table_rows = table.findAll('tr')
+    l=[]
+    for tr in table_rows:
+        td=tr.findAll('td')
+        row = list(filter(lambda r: r != '""', [tr.text.strip() for tr in td]))
+
+        url_name = tr.find('a')
+        link = r'http://www.londonstockexchange.com' + url_name.attrs['href']
+        response = requests.get(link)
+        soup = BeautifulSoup(response.text,"html.parser")
+        t = soup.find('h1',{'class':'tesummary'})
+        name = t.text.strip()
+
+        if name != 'FTSE 100':
+            ticker = re.search(r'.*\s', name)
+            name = name.replace(ticker.group(),"").strip()
+            row.append(name)
+
+        while("" in row):
+            row.remove("")
+
+        l.append(row)
+    lst.extend(l)
+FTSE = [e for e in lst if e!=[]]
+df=pd.DataFrame(FTSE,columns=['Code','Name','Cur','Price','+/-','%+/-','Full Name'])
+df.to_csv(output_file, index=False, encoding = 'utf-8-sig')
+df.to_excel(output_file, index=False)
+
+
+# for top 200 law firms
+output_file_2 = r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\law_firm_list.xlsx'
+lst_2 = []
+url = r'https://www.thelawyer.com/top-200-uk-law-firms/'
+response = requests.get(url)
+soup2 = BeautifulSoup(response.text, "html.parser")
+table2 = soup2.find('tbody')
+table_rows2 = table2.findAll('tr')
+a = []
+for tr2 in table_rows2:
+    td2 = tr2.findAll('td')
+    row2 = [tr2.text.strip() for tr2 in td2]
+    while("" in row2):
+        row2.remove("")
+    a.append(row2)
+law = [x for x in a if x != []]
+head = law[0]
+del law[0]
+df2 = pd.DataFrame(law,columns=head)
+df2.to_csv(output_file_2, index=False, encoding='utf-8-sig') #avoid ()shown as funny characters
+df2.to_excel(output_file_2, index=False)
+
+#---for the report itself-----------------------------------------
+#--------FTSE100--------------------------------------------------
+scriptpath1 = r".\NameLibrary.py"
+sys.path.append(os.path.abspath(scriptpath1))
+scriptpath2 = r".\bin.py"
+sys.path.append(os.path.abspath(scriptpath2))
+with open(r".\NameLibrary.py", "r+") as f:
+    NameDict = json.load(f)
+
+with open(r".\bin.py","r+") as f2:
+    Bin = json.load(f2)
+# read excel file and put column to python list
+file = r"\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\ftse_100_list.xlsx"
 df = pd.read_excel(file, sheet_name=0)
 mylist = df['Full Name'].tolist()
 namelist = []
@@ -145,7 +188,6 @@ head.value = "Clean Name"
 head.font = Font(bold=True)
 wb.save(file)
 
-#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #compare with report file
 report = r"\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep - Copy.xlsx"
 sheetname = ['Library', 'PSL', 'Draft']
@@ -203,7 +245,7 @@ for sh in sheetname:
                         wb2.save(r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep - Copy.xlsx')
 
 
-    # above part misses royal shell and lloyds
+ # above part misses royal shell and lloyds
 
     for acctname in acct:
         for a, b in NameDict.items():
@@ -236,12 +278,4 @@ Bin.update(bin_dict)
 
 with open(r".\bin.py", "w") as outfile2:
     json.dump(Bin, outfile2)
-
-
-
-
-
-
-
-
 

@@ -27,15 +27,19 @@ from functools import reduce  # -> for more efficient iterate calculation
 # Import NameLibrary for name mactching and appending new names
 import sys
 import os
-scriptpath1 = r".\Lawlibrary.py"
+#scriptpath1 = r".\Lawlibrary.py"
+scriptpath1 =  r."/Lawlibrary.py"
 sys.path.append(os.path.abspath(scriptpath1))
-scriptpath2 = r".\Lawbin.py"
+#scriptpath2 = r".\Lawbin.py"
+scriptpath2 = r"./Lawbin.py"
 sys.path.append(os.path.abspath(scriptpath2))
 
-with open(r".\Lawlibrary.py", "r+") as f:
+#with open(r".\Lawlibrary.py", "r+") as f:
+with open (scriptpath1,"r+") as f:
     NameDict = json.load(f)
 
-with open(r".\Lawbin.py", "r+") as f2:
+#with open(r".\Lawbin.py", "r+") as f2:
+with open (scriptpath2,"r+") as f2:
     Bin = json.load(f2)
 
 #define levenshtein distance function to be the foundation
@@ -86,10 +90,22 @@ def sort(a):
     a = "".join(sorted(a.split()))
     return a
 
-
-#--------------------------------------------------------------------------------------------------------------------------------------------------
+def initial (a,b):
+    names = [a,b]
+    length = [len(a),len(b)]
+    c = names[length.index(max(len(a),len(b)))]
+    c = c.split()
+    d = []
+    for i in c:
+        d.append(i[0])
+    d = "".join(d)
+    e = names[length.index(min(len(a),len(b)))]
+    inratio = ratio(d,e)
+    return inratio
+#----------------------------------------------------------------------------------------------------------------------------------------
 # read excel file and put column to python list
-file = r"\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\law_firm_list.xlsx"
+#file = r"\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\law_firm_list.xlsx"
+file = r"~/code/lawfirms/reports/law_firm_list.xlsx*"
 df = pd.read_excel(file, sheet_name=0)
 mylist = df['Firm name'].tolist()
 namelist = []
@@ -97,9 +113,9 @@ namelist = []
 
 for n in mylist:
     n = re.sub(r'\*',"",n)
-    
+
     namelist.append(n)
-    
+
 # put cleaned name in a new column
 wb = openpyxl.load_workbook(file)
 s = wb.get_sheet_by_name('Sheet1')
@@ -131,7 +147,7 @@ for sh in sheetname:
 
     wb2 = openpyxl.load_workbook(
         r"\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep - Copy.xlsx")
-  
+
     Tab = wb2.get_sheet_by_name(sh)
 
 
@@ -139,7 +155,7 @@ for sh in sheetname:
     for n in namelist:
         for m in acct:
             match = re.search(n,m,flags=re.I)
-            
+
             if match:
                 if m in matching:
                     mindex = acct.index(m)+1
@@ -164,8 +180,8 @@ for sh in sheetname:
                             firm.append(n)
 
 
-        
- 
+
+
 
 
 my_dict = dict()

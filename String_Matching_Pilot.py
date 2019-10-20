@@ -1,13 +1,13 @@
-# Levenshtein Distance 
+# Levenshtein Distance
 # string a,b; characters are 1-indexed. i.e, a1, a2, a3...; b1, b2, b3
 # if min(i,j) = 0, then max(i,j); otherwise min(A,B,C)
-# A compares string a with characters up till an-1 with string b  
-# B compares string a with string b with characters up till bn-1  
+# A compares string a with characters up till an-1 with string b
+# B compares string a with string b with characters up till bn-1
 # C compares string a with characters up till an-1 with string b with characters up till bn-1
 # As method C deleted the final string which could mean potential one edit, if the an=bn, then no need edit, otherwise would have one edit
 # find i and j by finding the length of the strings, as the length starts from 1
 # len(a) = i, len(b)=j
-# assume string b is the target string, to match a with b, if A is the min -> deletion as a needs to delet one string; 
+# assume string b is the target string, to match a with b, if A is the min -> deletion as a needs to delet one string;
 #if B is the min -> insertation, as a needs to add one string;
 # if C is the min -> substitute, as a needs to change certain characters to match b
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -21,21 +21,21 @@ from functools import reduce #-> for more efficient iterate calculation
 # Import NameLibrary for name mactching and appending new names
 import sys
 import os
-scriptpath1 = r".\NameLibrary.py"
+scriptpath1 = r"./NameLibrary.py"
 sys.path.append(os.path.abspath(scriptpath1))
-scriptpath2 = r".\bin.py"
+scriptpath2 = r"./bin.py"
 sys.path.append(os.path.abspath(scriptpath2))
 import json
 import openpyxl
 from openpyxl import Workbook
 from openpyxl.styles import Font, Color, Border
-import re 
-import pandas as pd 
+import re
+import pandas as pd
 
-with open(r".\NameLibrary.py", "r+") as f:
+with open(r"./NameLibrary.py", "r+") as f:
     NameDict = json.load(f)
 
-with open(r".\bin.py","r+") as f2:
+with open(r"./bin.py","r+") as f2:
     Bin = json.load(f2)
 
 #define levenshtein distance function to be the foundation
@@ -58,10 +58,10 @@ def lev(a, b):
                  lev(a, b[:-1]) + 1, # B: b[:-1] -> string b with characters up till an-1; deleting a character itself has one edit
 
                  lev(a[:-1], b[:-1]) + cost])  # C  # if min(i,j) = 0, then lev(a,b) = max (a,b); otherwise lev(a,b)=min(A, B, C)
-    
- 
+
+
     #ratio = other/length
-    
+
     return other
     #return ratio
 
@@ -78,25 +78,44 @@ def sort(a):
     return a
 
 
-# Name Matching two lists with exact length
-foo = "Lexis Nexis"
-boo = "Nexis Lexis"
+def initial(a,b):
+    names = [a,b]
+    length = [len(a),len(b)]
+    c = names[length.index(max(len(a),len(b)))]
+    c = c.split()
+    d = []
+    for i in c:
+        d.append(i[0])
+    d = "".join(d)
+    e = names[length.index(min(len(a),len(b)))]
+    inratio = ratio(d,e)
+    return inratio
 
-foo_list = sorted(foo.split()) # -> ["Lexis", "Nexis"]
-boo_list = sorted(boo.split()) # -> ["Lexis", "Nexis"]
-sum = 0
-for i,j in zip(range(len(foo_list)),range(len(boo_list))):
-    ld=(lev(foo_list[i],boo_list[j]))
-    sum=sum+ld
-#print(sum)  
+#Top 200 checking file------------------------------------------------------------------------------------------------------------------------------------------------
+
+# Name Matching two lists with exact length
+#foo = "Lexis Nexis"
+#boo = "Nexis Lexis"
+
+foo = "Bircham Dyson Bell"
+boo = "BDB"
+
+print(initial(foo,boo))
+#foo_list = sorted(foo.split()) # -> ["Lexis", "Nexis"]
+#boo_list = sorted(boo.split()) # -> ["Lexis", "Nexis"]
+#sum = 0
+#for i,j in zip(range(len(foo_list)),range(len(boo_list))):
+ #   ld=(lev(foo_list[i],boo_list[j]))
+  #  sum=sum+ld
+#print(sum)
 
 # lambda is anonymous function -> def sum_array(accumulator, entry):   return accumulator + entry #->lambda x, y
 #sum and sum2 basically the same thing
-sum2 = reduce(lambda x,y: x +y , [lev(foo_list[i], boo_list[i]) for i in range(len(foo_list))])
+#sum2 = reduce(lambda x,y: x +y , [lev(foo_list[i], boo_list[i]) for i in range(len(foo_list))])
 #print(sum2)
 # Name Matching essensially two lists with no length restriction
-foo_join = "".join(foo_list)
-boo_join = "".join(boo_list)
+#foo_join = "".join(foo_list)
+#boo_join = "".join(boo_list)
 #print(foo_join,boo_join)
 #print(lev(foo_join, boo_join))
 
@@ -113,7 +132,7 @@ boo_join = "".join(boo_list)
 #print(my_dict)
 #NameDict.update(my_dict)
 
-with open(r'.\NameLibrary.py','w') as outfile:
+with open(r'./NameLibrary.py','w') as outfile:
     json.dump(NameDict,outfile)
 
 #print(NameDict)
@@ -140,7 +159,7 @@ with open(r'.\NameLibrary.py','w') as outfile:
       #      json.dump(NameDict, outfile)
 
 # f_name from a list in excel, look up to populate the surname sheet
-wb = openpyxl.load_workbook(r'.\test.xlsx')
+wb = openpyxl.load_workbook(r'./test.xlsx')
 woo = wb.get_sheet_by_name("Sur")
 coo = wb.get_sheet_by_name("Fir")
 sur_list = []
@@ -182,7 +201,7 @@ for fir in fir_list:
             else:
                 #print(sur,"not in")  #"AS" not coming up because of surname lowercase
                 pass
-                # 
+                #
 #--------------------------------------------------------------------------------------------------------------------------------------------------
 # find a word in a long name
 str = 'Charity Commission for Northern Ireland'
@@ -203,7 +222,7 @@ list2 = []
 list3 = []
 
 for n in mylist:
-    match = re.search(r'PLC\s.*', n) 
+    match = re.search(r'PLC\s.*', n)
     if match:
         n = n.replace(match.group(),"")
         namelist.append(n)
@@ -212,7 +231,7 @@ for n in mylist:
         if match:
             n = n.replace(match.group(),"")
             namelist.append(n)
-        
+
 
 
 for nn in namelist:
@@ -221,7 +240,7 @@ for nn in namelist:
      #   print(match.group())
         nn = nn.replace(match.group(), "")
         list2.append(nn)
-    else:   
+    else:
         match = re.search(r'\sCO\s.*',nn)
         if match:
             nn = nn.replace(match.group(),"")
@@ -283,7 +302,7 @@ for n in list2:
         n = r'\b' + n + r'\s'
         for m in acct:
             match = re.search(n,m,flags=re.I)
-            if match:  
+            if match:
                 value = match.group()
                 if value in ftse:
                     print(value)
@@ -332,4 +351,4 @@ with open(r".\bin.py","w") as outfile2:
 
 
 
- 
+
