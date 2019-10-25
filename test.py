@@ -1,158 +1,218 @@
-from functools import reduce
+# Levenshtein Distance
+# string a,b; characters are 1-indexed. i.e, a1, a2, a3...; b1, b2, b3
+# if min(i,j) = 0, then max(i,j); otherwise min(A,B,C)
+# A compares string a with characters up till an-1 with string b
+# B compares string a with string b with characters up till bn-1
+# C compares string a with characters up till an-1 with string b with characters up till bn-1
+# As method C deleted the final string which could mean potential one edit, if the an=bn, then no need edit, otherwise would have one edit
+# find i and j by finding the length of the strings, as the length starts from 1
+# len(a) = i, len(b)=j
+# assume string b is the target string, to match a with b, if A is the min -> deletion as a needs to delet one string;
+#if B is the min -> insertation, as a needs to add one string;
+# if C is the min -> substitute, as a needs to change certain characters to match b
+#-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+#need to do:
+#lower case all the names; add more situations to the name possiblities
+
+import pandas as pd
+import re
+from openpyxl.styles import Font, Color, Border
+from openpyxl import Workbook
+import openpyxl
+import json
+from functools import reduce  # -> for more efficient iterate calculation
+#-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Import NameLibrary for name mactching and appending new names
 import sys
 import os
-import json
-import openpyxl
-from openpyxl import Workbook
-from openpyxl.styles import Font, Color, Border
-import re
-import pandas as pd
-scriptpath1 = r"./NameLibrary.py"
+#scriptpath1 = r".\Lawlibrary.py"
+scriptpath1 =  r"./Lawlibrary.py"
 sys.path.append(os.path.abspath(scriptpath1))
-scriptpath2 = r"./bin.py"
+#scriptpath2 = r".\Lawbin.py"
+scriptpath2 = r"./Lawbin.py"
 sys.path.append(os.path.abspath(scriptpath2))
-with open(r"./NameLibrary.py", "r+") as f:
+
+#with open(r".\Lawlibrary.py", "r+") as f:
+with open (scriptpath1,"r+") as f:
     NameDict = json.load(f)
 
-with open(r"./bin.py","r+") as f2:
+#with open(r".\Lawbin.py", "r+") as f2:
+with open (scriptpath2,"r+") as f2:
     Bin = json.load(f2)
+
+#define levenshtein distance function to be the foundation
+
 
 def lev(a, b):
     if a == "":
-        return len(b) # if a == "", then len(a) -> i = 0, while len(b) -> j; min(0,j) = 0, therefore lev(a,b) = max (0,j) = j
+        # if a == "", then len(a) -> i = 0, while len(b) -> j; min(0,j) = 0, therefore lev(a,b) = max (0,j) = j
+        return len(b)
 
     if b == "":
-        return len(a) # if b == "", then len(b) -> j = 0, while len(a) -> i; min(i,0) = 0, therefore lev(a,b) = max(i,0) = i
+        # if b == "", then len(b) -> j = 0, while len(a) -> i; min(i,0) = 0, therefore lev(a,b) = max(i,0) = i
+        return len(a)
 
     if a[-1] == b[-1]:
-        cost = 0  # a[-1] = ai, b[-1]=bj, if ai = bj, then deleting both final strings would not result in potential edit
+        # a[-1] = ai, b[-1]=bj, if ai = bj, then deleting both final strings would not result in potential edit
+        cost = 0
 
     else:
-        cost =1  # a[-1] = ai, b[-1]=bj, if ai <> bj, then deleting both final strings would result in potential one edit
-                 # can assign any number as weight -> substitution can be more costy than deletion/insertation
+        # a[-1] = ai, b[-1]=bj, if ai <> bj, then deleting both final strings would result in potential one edit
+        cost = 1
+        # can assign any number as weight -> substitution can be more costy than deletion/insertation
 
     other = min([lev(a[:-1], b) + 1,  # A: a[:-1] -> string a with characters up till an-1; deleting a character itself has one edit
 
-                 lev(a, b[:-1]) + 1, # B: b[:-1] -> string b with characters up till an-1; deleting a character itself has one edit
+                 # B: b[:-1] -> string b with characters up till an-1; deleting a character itself has one edit
+                 lev(a, b[:-1]) + 1,
 
                  lev(a[:-1], b[:-1]) + cost])  # C  # if min(i,j) = 0, then lev(a,b) = max (a,b); otherwise lev(a,b)=min(A, B, C)
-
 
     #ratio = other/length
 
     return other
     #return ratio
 
-def length(a,b):
+
+def length(a, b):
     length = len(a)+len(b)
     return length
 
-def ratio(a,b):
-    ratio = (1-round(lev(a,b)/length(a,b),3))*100
+
+def ratio(a, b):
+    ratio = (1-round(lev(a, b)/length(a, b), 3))*100
     return ratio
 
-def join(a):
-    a = "".join(a.split())
+
+def sort(a):
+    a = "".join(sorted(a.split()))
     return a
 
-def trim(a):
-    a = list(filter(lambda l: l!= '"',[l.strip() for l in a]))
-    return a
-def lower(a):
-    a = "".join(trim(a)).lower()
-    return a
-#----------------------------------------------------------------------------------------------
-file = r"./ftse100_list.xlsx"
-df = pd.read_excel(file, sheet_name=0)
-mylist = df['Full Name'].tolist()
-namelist = []
-list2 = []
-list3 = []
+def initial (a,b):
+    a = a.split(' ')
+    b = b.split(' ')
+    a = list(filter(lambda i: i != '', a))
+    b = list(filter(lambda i: i != '', b))
+    c = []
 
-for n in mylist:
-    match = re.search(r'PLC\s.*', n)
-    if match:
-        n = n.replace(match.group(),"")
-        namelist.append(n)
-    else:
-        match = re.search(r'ORD\s.*',n)
-        if match:
-            n = n.replace(match.group(),"")
-            namelist.append(n)
-namelist = trim(namelist)
-
-for nn in namelist:
-    nn = nn.split()
-    if nn[-1] in ['CO','AG','LD','GROUP','LTD','INTERNATIONAL','HOLDINGS','HLDGS']:
-        nn = " ".join(nn[:-1])
-        list2.append(nn)
-    elif "".join(nn[-2:]) == "INVTST":
-        nn = " ".join(nn[:-2])
-        list2.append(nn)
-    else:
-        nn = " ".join(nn)
-        list2.append(nn)
-
-for i in list2:
-    match = re.search(r'\([^()]*\)',i)
-    if match:
-        i = i.replace(match.group(),"")
-        list3.append(i)
-    else:
-        match = re.search(r'GROUP\s.*',i)
-        if match:
-            i = i.replace(match.group(),"")
-            list3.append(i)
+    if a[0].isupper() and b[0].isupper():
+        inratio = ratio(a[0],b[0])
+        return inratio
+    elif a[0].isupper() == True and len(a[0])>1 and b[0].isupper() == False:
+        if len(b) >=len(a[0]):
+            b = b[:len(a[0])]
+            for i in b:
+                c.append(i[0])
+            c = "".join(c)
+            inratio = ratio(a[0],c)
+            return inratio
         else:
-            match = re.search(r'GROUP',i)
-            if match:
-                i= i.replace(match.group(),"")
-                list3.append(i)
-            else:
-                list3.append(i)
-list3 = [l.replace("&", "")for l in list3]
-list3 = trim(list3)
+            pass
+    elif a[0].isupper()==False and b[0].isupper() == True and len(b[0]) >1:
+        if len(a) >= len(b[0]):
+            a = a[:len(b[0])]
+            for i in a:
+                c.append(i[0])
+            c = "".join(c)
+            inratio = ratio(b[0],c)
+            return inratio
+        else:
+            pass
+    else:
+        pass
 
+
+def abbre(a):
+    b = a.split()
+    c = []
+    for i in b:
+        c.append(i[0])
+    c = "".join(c)
+
+#----------------------------------------------------------------------------------------------------------------------------------------
+# read excel file and put column to python list
+#file = r"\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\law_firm_list.xlsx"
+file = r"./lawfirm_list.xlsx"
+df = pd.read_excel(file, sheet_name=0)
+namelist = df['Firm'].tolist()
+
+# clean the * character in the end of the names
+
+for n in namelist:
+    nindex = namelist.index(n)
+    n = re.sub(r'\*',"",n)
+    namelist[nindex] = n
+
+# put cleaned name in a new column
 wb = openpyxl.load_workbook(file)
 s = wb.get_sheet_by_name('Sheet1')
 row = 2
-for nl in list3:
-    s.cell(row, 8).value = nl
+for n in namelist:
+    s.cell(row, 5).value = n
+    wb.save(file)
     row += 1
-head = s.cell(1, 8)
+head = s.cell(1, 5)
 head.value = "Clean Name"
 head.font = Font(bold=True)
 #wb.save(file)
 
-#compare the files-------------------------------------------
-report = r"./report.xlsx"
-sheetname = ['Library', 'PSL', 'Draft']
+
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+#compare with report file
+#report = r"\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep - Copy.xlsx"
+report = r'./report.xlsx'
+#sheetname = ['Library','PSL','Draft']
+sheetname = ['Library']
 for sh in sheetname:
-    df = pd.read_excel(report, sheet_name=sh)
+
+    df = pd.read_excel(report, sheet_name= sh)
+
     acct = df['accname'].tolist()
+    acctname = df['accname'].tolist()
+
 #    matching = list(NameDict.keys())
- #   ftse = list(NameDict.values())
+    matching = ['Berrymans Lace Mawer LLP','Holman Fenwick Willan LLP','Reynolds Porter Chamberlain LLP','JMW Solicitors LLP','McMillan Williams Solicitors Limited','AG Service Company Limited','BDB Pitmans LLP']
+#    print(matching)
+    law = list(NameDict.values())
     wrongname = list(Bin.keys())
-   # ticker = list(Bin.values())
+    firm = list(Bin.values())
+
+#    wb2 = openpyxl.load_workbook(
+#        r"\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep - Copy.xlsx")
+
     wb2 = openpyxl.load_workbook(report)
+
     Tab = wb2.get_sheet_by_name(sh)
+# clean account name
+    for m in acct:
+        match = re.search(r'\([^()]*\)',m)
+        mindex = acct.index(m)
+        if match:
+            m = m.replace(match.group(),"")
+            acct[mindex] = m
+    for m in acct:
+        mindex = acct.index(m)
+        mm = m.split()
+        if mm[-1] in ['LTD','Ltd','Ltd.','LLP','Limited','AG','AG,','Corp','Corporation','Firm','GmbH-UK','Group','Holding','Holdings','Inc.','Ind','Inc','LIMITED','LLC','Llp','London','Co.','S.A','RLLP','SA','Service','Services','SERVICES','Trust','UK']:
+            m =" ".join(mm[:-1])
+            acct[mindex] = m
+    for n in namelist:
+        for m in acct:
+            if initial(m,n) == 100 :
+                print(m,n)
 
-    for n in list3:
-        if n == join(n):
-            nn = r'\b'+n+r'\s'
-            for m in acct:
-                match = re.search(nn,m,flags=re.I)
-                if match and m not in wrongname:
-                    mindex = acct.index(m)+2
-                    Tab.cell(mindex,3).value = n
-                    wb2.save(report)
-        else:
-            for m in acct:
-                match = re.search(n,m,flags=re.I)
-                if match and m not in wrongname:
-                    mindex = acct.index(m)+2
-                    Tab.cell(mindex,3).value = n
-                    wb2.save(report)
-                else:
-                    pass
+        #and acctname[acct.index(m)] in matching:print(m,n)
+      #  else:
+       #     for m in acct:
+        #        if m[0].isupper() and initial(m[0],n) == 100 and acctname[acct.index(m)] in matching:
+         #           print(m,n)
 
+#          else:
+       #             pass
+        #else:
+         #   for m in acct_clean:
+          #      match = re.search(abbre(n),m,flags = re.I)
+           #     if match:
+            #        print (n,m)

@@ -28,7 +28,7 @@ from functools import reduce  # -> for more efficient iterate calculation
 import sys
 import os
 #scriptpath1 = r".\Lawlibrary.py"
-scriptpath1 =  r."/Lawlibrary.py"
+scriptpath1 =  r"./Lawlibrary.py"
 sys.path.append(os.path.abspath(scriptpath1))
 #scriptpath2 = r".\Lawbin.py"
 scriptpath2 = r"./Lawbin.py"
@@ -105,9 +105,9 @@ def initial (a,b):
 #----------------------------------------------------------------------------------------------------------------------------------------
 # read excel file and put column to python list
 #file = r"\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\law_firm_list.xlsx"
-file = r"~/code/lawfirms/reports/law_firm_list.xlsx*"
+file = r"./lawfirm_list.xlsx"
 df = pd.read_excel(file, sheet_name=0)
-mylist = df['Firm name'].tolist()
+mylist = df['Firm'].tolist()
 namelist = []
 # clean the * character in the end of the names
 
@@ -132,7 +132,8 @@ head.font = Font(bold=True)
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #compare with report file
-report = r"\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep - Copy.xlsx"
+#report = r"\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep - Copy.xlsx"
+report = r'./report.xlsx'
 sheetname = ['Library','PSL','Draft']
 for sh in sheetname:
 
@@ -145,39 +146,60 @@ for sh in sheetname:
     wrongname = list(Bin.keys())
     firm = list(Bin.values())
 
-    wb2 = openpyxl.load_workbook(
-        r"\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep - Copy.xlsx")
+#    wb2 = openpyxl.load_workbook(
+#        r"\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep - Copy.xlsx")
+
+    wb2 = openpyxl.load_workbook(report)
 
     Tab = wb2.get_sheet_by_name(sh)
-
-
+# clean account name
+    acct_clean = []
+    for m in acct:
+        match = re.search(r'\([^()]*\)',m)
+        if match:
+            m = m.replace(match.group(),"")
+            acct_clean.append(m)
+        else:
+            mm = m.split()
+            if mm[-1] in ['LTD','Ltd','Ltd.','LLP','Limited','AG','AG,','Corp','Corporation','Firm','GmbH-UK','Group','Holding','Holdings','Inc.','Ind','Inc','LIMITED','LLC','Llp','London','Co.','S.A','RLLP','SA','Service','Services','SERVICES','Trust','UK']:
+                mm ="".join(mm[:-1])
+                acct_clean.append(mm)
+            else:
+                acct_clean.append(m)
 
     for n in namelist:
-        for m in acct:
-            match = re.search(n,m,flags=re.I)
-
-            if match:
-                if m in matching:
-                    mindex = acct.index(m)+1
-                    Tab.cell(mindex+1, 8).value = n
-                    wb2.save(r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep - Copy.xlsx')
-
+        nn = "".join(n.split())
+        if n == nn:
+            for m in acct:
+                if initial(m,n) == 100 and m in matching:
+                    print(m,n)
                 else:
-                    if m in wrongname:
-                        pass
+                    pass
+        else:
+            for m in acct:
+                match = re.search(n,m,flags=re.I)
+                if match:
+                    if m in matching:
+                        mindex = acct.index(m)+1
+                        Tab.cell(mindex+1, 8).value = n
+                        wb2.save(r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep - Copy.xlsx')
+
                     else:
-                        print(acct.index(m), match.group(), m)
-                        user = input(
-                            "do you want to add it into the dictionary? y/n: ")
-                        if user == "y":
-                            law.append(n)
-                            matching.append(m)
-                            mindex = acct.index(m)+1
-                            Tab.cell(mindex+1, 8).value = n
-                            wb2.save(r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep - Copy.xlsx')
+                        if m in wrongname:
+                            pass
                         else:
-                            wrongname.append(m)
-                            firm.append(n)
+                            print(acct.index(m), match.group(), m)
+                            user = input(
+                            "do you want to add it into the dictionary? y/n: ")
+                            if user == "y":
+                                law.append(n)
+                                matching.append(m)
+                                mindex = acct.index(m)+1
+                                Tab.cell(mindex+1, 8).value = n
+                                wb2.save(r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep - Copy.xlsx')
+                            else:
+                                wrongname.append(m)
+                                firm.append(n)
 
 
 
