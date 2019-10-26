@@ -36,11 +36,11 @@ sys.path.append(os.path.abspath(scriptpath2))
 
 #with open(r".\Lawlibrary.py", "r+") as f:
 with open (scriptpath1,"r+") as f:
-    NameDict = json.load(f)
+    NameDict = json.load(f, strict=False)
 
 #with open(r".\Lawbin.py", "r+") as f2:
 with open (scriptpath2,"r+") as f2:
-    Bin = json.load(f2)
+    Bin = json.load(f2, strict = False)
 
 #define levenshtein distance function to be the foundation
 
@@ -90,18 +90,6 @@ def sort(a):
     a = "".join(sorted(a.split()))
     return a
 
-def initial (a,b):
-    names = [a,b]
-    length = [len(a),len(b)]
-    c = names[length.index(max(len(a),len(b)))]
-    c = c.split()
-    d = []
-    for i in c:
-        d.append(i[0])
-    d = "".join(d)
-    e = names[length.index(min(len(a),len(b)))]
-    inratio = ratio(d,e)
-    return inratio
 
 def initial (a,b):
     a = a.split(' ')
@@ -199,7 +187,7 @@ for sh in sheetname:
     wb2 = openpyxl.load_workbook(report)
 
     Tab = wb2.get_sheet_by_name(sh)
-
+# based on the dictionary
     for acc in acct:
         if acc in matching:
             accindex = acct.index(acc)

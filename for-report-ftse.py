@@ -165,62 +165,85 @@ for sh in sheetname:
     wb2 = openpyxl.load_workbook(report)
     Tab = wb2.get_sheet_by_name(sh)
     symbol = []
+    existing = []
+    checking = []
+    checkingname= []
 
-    for n in list2:
+    for acc in acct:
+        if acc in matching:
+            accindex = acct.index(acc)
+            matchingindex = matching.index(acc)
+            ftseticker = ftse[matchingindex]
+            existing.append(acc)
+            Tab.cell(accindex+2,3).value = ftseticker
+            wb2.save(report)
+
+        else:
+            checking.append(acc)
+            checkingname.append(acc)
+
+# name matching for new names
+
+    for n in list3:
         nj = "".join(n.split())
 
         if n == nj:
             n = r'\b' + n + r'\s'
-            for m in acct:
+            for m in checking:
+                mindex = checking.index(m)
+                cus = checkingname[mindex]
+                accindex = acct.index(cus)
+                acc = acct[accindex]
                 match = re.search(n,m,flags=re.I)
-                if match:
-
-                    if m in matching:
-                        mindex = acct.index(m)+1
+                if match and m not in wrongname:
+                    print(m,n)
+                    user = input("do you want to add it to the dictionary? y/n: ")
+                    if user == "y":
+                        matching.append(cus)
+                        ftse.append(nj)
                         Tab.cell(mindex+1, 3).value = nj
                         wb2.save(report)
                     #    wb2.save(r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep - Copy.xlsx')
 
                     else:
-                        if m in wrongname:
-                            pass
-                        else:
-                            print(acct.index(m), match.group(), m)
-                            user = input("do you want to add it into the dictionary? y/n: ")
-                            if user != "n":
-                                ftse.append(nj)
-                                matching.append(m)
-                                Tab.cell(mindex+1, 3).value = nj
-                                wb2.save(report)
-                           #     wb2.save(r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep - Copy.xlsx')
-                            else:
-                                wrongname.append(m)
-                                ticker.append(nj)
+                        wrongname.append(m)
+                        ticker.append(nj)
 
         else:
             symbol.append(n)
             for s in symbol:
-                for m in acct:
+                for m in checking:
+                    mindex = checking.index(m)
+                    cus = checkingname[mindex]
+                    accindex = acct.index(cus)
+                    acc = acct[accindex]
                     match = re.search(n,m, flags = re.I)
-                    if match:
-                        mindex = acct.index(m)+1
-                        Tab.cell(mindex+1, 3).value = s
-                        wb2.save(report)
-                        #wb2.save(r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep - Copy.xlsx')
+                    if match and m not in wrongname:
+                        print(m,n)
+                        user = input("do you want to add it to the dictionary? y/n: ")
+                        if user == "y":
+                            matching.append(cus)
+                            ftse.append(s)
+                            Tab.cell(mindex+1, 3).value = s
+                            wb2.save(report)
+                            #wb2.save(r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep - Copy.xlsx')
+                        else:
+                            wrongname.append(m)
+                            ticker.append(nj)
 
 
     # above part misses royal shell and lloyds
 
-    for acctname in acct:
-        for a, b in NameDict.items():
-            if acctname == a:
-                tickersymbol = b
-                acctindex = acct.index(acctname)+1
-                if Tab.cell(acctindex+1, 3).value:
-                    pass
-                else:
-                    Tab.cell(acctindex+1, 3).value = b
-                    wb2.save(report)
+   # for acctname in acct:
+    #    for a, b in NameDict.items():
+     #       if acctname == a:
+      #          tickersymbol = b
+       #         acctindex = acct.index(acctname)+1
+        #        if Tab.cell(acctindex+1, 3).value:
+         #           pass
+          #      else:
+           #         Tab.cell(acctindex+1, 3).value = b
+            #        wb2.save(report)
                    # wb2.save(r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep - Copy.xlsx')
 
 
