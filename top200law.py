@@ -213,7 +213,7 @@ for company in ftselist:
 fhead = fsh.cell(1, 8)
 fhead.value = "Clean Name"
 fhead.font = Font(bold=True)
-#fwb.save(ftsefile)
+fwb.save(ftsefile)
 #
 #----------prepare Top 200 Law Firms List-----------------------------------
 lawfile = r"./test/law200.xlsx"
