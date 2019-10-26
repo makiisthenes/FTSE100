@@ -100,6 +100,7 @@ def initial (a,b):
     if a[0].isupper() and b[0].isupper():
         inratio = ratio(a[0],b[0])
         return inratio
+
     elif a[0].isupper() == True and len(a[0])>1 and b[0].isupper() == False:
         if len(b) >=len(a[0]):
             b = b[:len(a[0])]
@@ -123,13 +124,11 @@ def initial (a,b):
     else:
         pass
 
+def removeand (a):
+    a = a.split(' ')
+    a =" ".join(list(filter(lambda i: i != '&' and i != 'and', a)))
 
-def abbre(a):
-    b = a.split()
-    c = []
-    for i in b:
-        c.append(i[0])
-    c = "".join(c)
+    return a
 
 #----------------------------------------------------------------------------------------------------------------------------------------
 # read excel file and put column to python list
@@ -172,8 +171,8 @@ for sh in sheetname:
     acct = df['accname'].tolist()
     acctname = df['accname'].tolist()
 
-#    matching = list(NameDict.keys())
-    matching = ['Berrymans Lace Mawer LLP','Holman Fenwick Willan LLP','Reynolds Porter Chamberlain LLP','JMW Solicitors LLP','McMillan Williams Solicitors Limited','AG Service Company Limited','BDB Pitmans LLP']
+    matching = list(NameDict.keys())
+    #matching = ['Berrymans Lace Mawer LLP','Holman Fenwick Willan LLP','Reynolds Porter Chamberlain LLP','JMW Solicitors LLP','McMillan Williams Solicitors Limited','AG Service Company Limited','BDB Pitmans LLP','Clyde & Co LLP','Bates Wells & Braithwaite (Ipswich)','Knights Professional Services Ltd.','HCR Legal LLP','Thrings LLP','Anderson Strathern','Sacker & Partner','Bates Wells & Braithwaite Limited','Slaughter & May','Trowers & Hamlins (services) Limited','Mayo Wynne Baxter LLP','Drydens Fairfax']
 #    print(matching)
     law = list(NameDict.values())
     wrongname = list(Bin.keys())
@@ -199,20 +198,26 @@ for sh in sheetname:
             m =" ".join(mm[:-1])
             acct[mindex] = m
     for n in namelist:
+        nn = n.split(' ')
         for m in acct:
-            if initial(m,n) == 100 :
+            mm = m.split(' ')
+            if initial(m,n) == 100 and acctname[acct.index(m)] not in matching:
                 print(m,n)
+                user = input("do you want to add in the library? y/n")
+                if user == 'y':
+                    matching.append(acctname[acct.index(m)])
+                else:
+                    wrongname.append(acctname[acct.index(m)])
 
-        #and acctname[acct.index(m)] in matching:print(m,n)
-      #  else:
-       #     for m in acct:
-        #        if m[0].isupper() and initial(m[0],n) == 100 and acctname[acct.index(m)] in matching:
-         #           print(m,n)
+            elif nn[0].isupper() == mm[0].isupper() == False:
+                match = re.search(removeand(n),removeand(m),flags=re.I)
+                if match and acctname[acct.index(m)] not in matching:
+                    print(m,n)
+                    user = input("do you want to add in the library? y/n")
+                    if user == 'y':
+                        matching.append(acctname[acct.index(m)])
+                    else:
+                        wrongname.append(acctname[acct.index(m)])
 
-#          else:
-       #             pass
-        #else:
-         #   for m in acct_clean:
-          #      match = re.search(abbre(n),m,flags = re.I)
-           #     if match:
-            #        print (n,m)
+
+

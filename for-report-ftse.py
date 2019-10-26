@@ -21,9 +21,9 @@ from functools import reduce #-> for more efficient iterate calculation
 # Import NameLibrary for name mactching and appending new names
 import sys
 import os
-scriptpath1 = r".\NameLibrary.py"
+scriptpath1 = r"./NameLibrary.py"
 sys.path.append(os.path.abspath(scriptpath1))
-scriptpath2 = r".\bin.py"
+scriptpath2 = r"./bin.py"
 sys.path.append(os.path.abspath(scriptpath2))
 import json
 import openpyxl
@@ -32,10 +32,10 @@ from openpyxl.styles import Font, Color, Border
 import re
 import pandas as pd
 
-with open(r".\NameLibrary.py", "r+") as f:
+with open(scriptpath1, "r+") as f:
     NameDict = json.load(f)
 
-with open(r".\bin.py","r+") as f2:
+with open(scriptpath2,"r+") as f2:
     Bin = json.load(f2)
 
 #define levenshtein distance function to be the foundation
@@ -83,7 +83,7 @@ def trim(a):
 # read excel file and put column to python list
 #file = r"\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\ftse_100_list.xlsx"
 
-file = r"./FTSE100/ftse100_list.xlsx"
+file = r"./ftse100_list.xlsx"
 df = pd.read_excel(file, sheet_name=0)
 mylist = df['Full Name'].tolist()
 namelist = []
@@ -147,8 +147,10 @@ wb.save(file)
 
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #compare with report file
-report = r"\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep - Copy.xlsx"
-sheetname = ['Library', 'PSL', 'Draft']
+#report = r"\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep - Copy.xlsx"
+report = r'./report.xlsx'
+#sheetname = ['Library', 'PSL', 'Draft']
+sheetname = ['Library']
 for sh in sheetname:
     df = pd.read_excel(report, sheet_name=sh)
     acct = df['accname'].tolist()
@@ -158,8 +160,9 @@ for sh in sheetname:
     wrongname = list(Bin.keys())
     ticker = list(Bin.values())
 
-    wb2 = openpyxl.load_workbook(
-        r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep - Copy.xlsx')
+   # wb2 = openpyxl.load_workbook(
+    #    r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep - Copy.xlsx')
+    wb2 = openpyxl.load_workbook(report)
     Tab = wb2.get_sheet_by_name(sh)
     symbol = []
 
@@ -174,8 +177,9 @@ for sh in sheetname:
 
                     if m in matching:
                         mindex = acct.index(m)+1
-                        Tab.cell(mindex+1, 11).value = nj
-                        wb2.save(r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep - Copy.xlsx')
+                        Tab.cell(mindex+1, 3).value = nj
+                        wb2.save(report)
+                    #    wb2.save(r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep - Copy.xlsx')
 
                     else:
                         if m in wrongname:
@@ -186,8 +190,9 @@ for sh in sheetname:
                             if user != "n":
                                 ftse.append(nj)
                                 matching.append(m)
-                                Tab.cell(mindex+1, 11).value = nj
-                                wb2.save(r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep - Copy.xlsx')
+                                Tab.cell(mindex+1, 3).value = nj
+                                wb2.save(report)
+                           #     wb2.save(r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep - Copy.xlsx')
                             else:
                                 wrongname.append(m)
                                 ticker.append(nj)
@@ -199,8 +204,9 @@ for sh in sheetname:
                     match = re.search(n,m, flags = re.I)
                     if match:
                         mindex = acct.index(m)+1
-                        Tab.cell(mindex+1, 11).value = s
-                        wb2.save(r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep - Copy.xlsx')
+                        Tab.cell(mindex+1, 3).value = s
+                        wb2.save(report)
+                        #wb2.save(r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep - Copy.xlsx')
 
 
     # above part misses royal shell and lloyds
@@ -210,11 +216,12 @@ for sh in sheetname:
             if acctname == a:
                 tickersymbol = b
                 acctindex = acct.index(acctname)+1
-                if Tab.cell(acctindex+1, 11).value:
+                if Tab.cell(acctindex+1, 3).value:
                     pass
                 else:
-                    Tab.cell(acctindex+1, 11).value = b
-                    wb2.save(r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep - Copy.xlsx')
+                    Tab.cell(acctindex+1, 3).value = b
+                    wb2.save(report)
+                   # wb2.save(r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep - Copy.xlsx')
 
 
 my_dict = dict()
@@ -224,7 +231,7 @@ for f, m in zip(ftse, matching):
 
 NameDict.update(my_dict)
 
-with open(r'.\NameLibrary.py', 'w') as outfile:
+with open(scriptpath1, 'w') as outfile:
     json.dump(NameDict, outfile)
 
 bin_dict = dict()
@@ -234,7 +241,7 @@ for t, w in zip(ticker, wrongname):
 
 Bin.update(bin_dict)
 
-with open(r".\bin.py", "w") as outfile2:
+with open(scriptpath2, "w") as outfile2:
     json.dump(Bin, outfile2)
 
 
