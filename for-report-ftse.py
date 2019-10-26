@@ -33,10 +33,10 @@ import re
 import pandas as pd
 
 with open(scriptpath1, "r+") as f:
-    NameDict = json.load(f)
+    NameDict = json.load(f, strict = False)
 
 with open(scriptpath2,"r+") as f2:
-    Bin = json.load(f2)
+    Bin = json.load(f2,strict=False)
 
 #define levenshtein distance function to be the foundation
 def lev(a, b):
