@@ -214,12 +214,13 @@ fhead = fsh.cell(1, 8)
 fhead.value = "Clean Name"
 fhead.font = Font(bold=True)
 fwb.save(ftsefile)
-#
+
 #----------prepare Top 200 Law Firms List-----------------------------------
-lawfile = r"./test/law200.xlsx"
+awfile = r"./test/law200.xlsx"
 #file = r"\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\law_firm_list.xlsx"
 ldf = pd.read_excel(lawfile, sheet_name=0)
 lawlist = ldf['Firm'].tolist()
+lawrank = ldf['Rank 2019'].tolist()
 
 
 #---------name matching with the Report-----------------------------------------------
@@ -348,8 +349,11 @@ for sh in sheetname:
                 accindex = acctlist.index(acc)
                 matchingindex = lmatching.index(acc)
                 lawname = lfirm[matchingindex]
+                firmname = " ".join(lawname.split())
+                lawindex = lawlist.index(firmname)
                 lexisting.append(acc)
-                Tab.cell(accindex+2,2).value = lawname
+                Tab.cell(accindex+2,2).value = firmname
+                Tab.cell(accindex+2,4).value = lawrank[lawindex]
                 rwb.save(report)
             else:
                 lchecking.append(acc)
@@ -380,6 +384,7 @@ for sh in sheetname:
             cus = lcheckingname[accindex]
             cusindex = acctname.index(cus)
             cusname = acctname[cusindex]
+            firmindex = lawlist.index(firm)
             ff = firm.split(' ')
             if initial(acc,firm) == 100 and cusname not in lwrongname:
                 print(acc,firm)
@@ -388,6 +393,7 @@ for sh in sheetname:
                     lfirm.append(firm)
                     lmatching.append(cusname)
                     Tab.cell(cusindex+2, 2).value = firm
+                    Tab.cell(cusindex+2, 4).value = lawrank[firmindex]
                     rwb.save(report)
                 else:
                     lwrongfirm.append(firm)
@@ -403,6 +409,7 @@ for sh in sheetname:
                         lfirm.append(firm)
                         lmatching.append(cusname)
                         Tab.cell(cusindex+2,2).value = firm
+                        Tab.cell(cusindex+2,4).value = lawrank[firmindex]
                         rwb.save(report)
                     else:
                         lwrongfirm.append(firm)
