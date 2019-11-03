@@ -12,6 +12,8 @@ import json
 import openpyxl
 from openpyxl import Workbook
 from openpyxl.styles import Font, Color, Border
+import shutil
+import datetime
 
 #-----functions--------------------------------------------
 def lev(a, b): # levenshtein distance for string matching
@@ -205,7 +207,7 @@ for company in ftselist:
 ftselist = [company.replace(" & ", " ").strip() for company in ftselist]
 
 fwb = openpyxl.load_workbook(ftsefile)
-fsh = fwb.get_sheet_by_name('Sheet1')
+fsh = fwb['Sheet1']
 row = 2
 for company in ftselist:
     fsh.cell(row, 8).value = company
@@ -216,7 +218,7 @@ fhead.font = Font(bold=True)
 fwb.save(ftsefile)
 
 #----------prepare Top 200 Law Firms List-----------------------------------
-awfile = r"./test/law200.xlsx"
+lawfile = r"./test/law200.xlsx"
 #file = r"\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\law_firm_list.xlsx"
 ldf = pd.read_excel(lawfile, sheet_name=0)
 lawlist = ldf['Firm'].tolist()
@@ -271,7 +273,7 @@ for sh in sheetname:
     rwb = openpyxl.load_workbook(report)
 #    rwb = openpyxl.load_workbook(
 #        r'\\Galileo\Public\Legal Intelligence\Customer Segmentation\BA\Ad Hoc Reports & Requests\2019\201909 - September\DAI-2093 - Kenneth Ume - Market Product Penetration Data Request - REPORT\8. WORKINGS_Sep - Copy.xlsx')
-    Tab = rwb.get_sheet_by_name(sh)
+    Tab = rwb[sh]
 
 #for ftse100---------------------------------------------------------
     symbol = []
@@ -456,3 +458,6 @@ lawBinDict.update(bin_ldict)
 with open(lawbinpath, "w") as lbinoutfile:
     json.dump(lawBinDict, lbinoutfile)
 
+now = datetime.datetime.now()
+yearmonth = now.strftime("%b_%Y")
+shutil.copy(report,r"./test/report_%s.xlsx") %yearmonth

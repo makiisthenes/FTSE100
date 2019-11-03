@@ -16,8 +16,8 @@ from openpyxl import load_workbook
 
 report = r"./report.xlsx"
 workbook=load_workbook(report,data_only = True)
-previous = workbook.get_sheet_by_name('previous')
-current = workbook.get_sheet_by_name('Top200LawFirms')
+previous = workbook['previous']
+current = workbook['Top200LawFirms']
 
 rows=previous[2:previous.max_row]
 #print(rows)
@@ -34,17 +34,20 @@ finalfirm = df2['Top200Law'].tolist()
 #        workbook.save(report)
 #    else:
 #        pass
-#for row in rows:
-#    for cell in row:
-#        cell.value= None
-#        rownumber = cell.row
-#        columnnumber = cell.column
-#        currentvalue = current.cell(rownumber,columnnumber).value
-#        cell.value=currentvalue
-#        workbook.save(report)
-#        print(cell.value)
-#        print (cell.row,cell.column)
+for row in rows:
+    for cell in row:
+        cell.value= None
+        rownumber = cell.row
+        columnnumber = cell.column
+        currentvalue = current.cell(rownumber,columnnumber).value
+        cell.value=currentvalue
+        #workbook.save(report)
+        #print(cell.value)
+        #print (cell.row,cell.column)
+workbook.save(report)
 
 currentPSL = df['PSL']
 numPSL = len(list(filter(lambda n: n == 'Y', currentPSL)))
 print(numPSL)
+
+
